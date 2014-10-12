@@ -3,7 +3,7 @@
 SASS/SCSS compiler
 
 * built on top of `debian` base image
-* uses (sassc)[https://github.com/sass/sassc]
+* uses [sassc](https://github.com/sass/sassc)
 * ~88 MB in size (85 MB debian base + 3 MB sassc binary)
 * invoke with `docker run --rm -v $(pwd):$(pwd) -w $(pwd) jbergknoff/sass file.scss`
 
