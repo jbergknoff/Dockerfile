@@ -6,7 +6,7 @@ Minimal node.js environment:
 * ~17 MB in size (5 MB base + 12 MB)
 * executes `node` by default
 
-Example usage:
+### Example usage:
 
 ```bash
 $ docker run -it --rm jbergknoff/nodejs

@@ -4,14 +4,12 @@ node.js environment, with git and build tools, to facilitate npm and bower insta
 
 * built on top of `gliderlabs/alpine` base image
 
-Example usage:
+### Example usage:
 
 Run `npm install` for current directory:
 
 ```bash
 $ docker run -it --rm -v $(pwd):$(pwd) -w $(pwd) jbergknoff/nodejs-builder npm install
-> console.log("hello world!");
-hello world!
 ```
 
 Forward ssh-agent to fetch dependencies from, e.g., private git repositories:

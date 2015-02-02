@@ -6,7 +6,7 @@ Minimal redis environment:
 * ~6 MB in size (5 MB base + 1 MB)
 * executes `redis-server` by default.
 
-Example usage:
+### Example usage:
 
 ```bash
 $ docker run -d jbergknoff/redis
