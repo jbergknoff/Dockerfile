@@ -1,5 +1,4 @@
-FROM debian:wheezy
-
-ADD https://dl.dropboxusercontent.com/u/92733564/sassc /usr/bin/sass
-RUN chmod +x /usr/bin/sass
+FROM alpine:3.1
+ADD build.sh /usr/bin/
+RUN build.sh
 ENTRYPOINT [ "sass" ]
