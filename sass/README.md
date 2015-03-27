@@ -28,7 +28,9 @@ alias sass="docker run -it --rm -v \$(pwd):\$(pwd) -w \$(pwd) jbergknoff/sass"
 so you will be able to simply run
 
 ```
-sass file.scss
+$ sass file.scss
+.thing {
+  color: #00f; }
 ```
 
 ## Generating the binary
