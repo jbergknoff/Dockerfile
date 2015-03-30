@@ -8,6 +8,6 @@ Minimal environment with PostgreSQL client:
 ### Example usage:
 
 ```bash
-$ docker run -it --rm jbergknoff/postgresql-client psql://user:pass@host:5432/db
+$ docker run -it --rm jbergknoff/postgresql-client postgresql://user:pass@host:5432/db
 ...
 ```
