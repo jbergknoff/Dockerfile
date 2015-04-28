@@ -12,7 +12,7 @@ I don't make any warranties about the security of this container. It's a toy for
 By default, no users or privileges are added or subtracted from the standard MySQL config. You can grant access by passing environment variables when the container is started.
 
 * `ROOT_PASSWORD` grants password-based access to `root` from any host.
-* `USERNAME` and `PASSWORD` (must be supplied together to take effect) creates a new user with password-based access from any host, and with full privileges on the entire database.
+* `USERNAME` creates a new user with access from any host (if a value for `PASSWORD` is also specified, the user will require that password), and with full privileges on the entire database.
 
 ### Example usage:
 
