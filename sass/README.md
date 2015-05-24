@@ -14,6 +14,7 @@ The image has the `sass` binary as its entrypoint, so it should be invoked with 
 $ cat file.scss
 $blue: #00f;
 .thing { color: $blue; }
+
 $ docker run --rm -v $(pwd):$(pwd) -w $(pwd) jbergknoff/sass file.scss
 .thing {
   color: #00f; }
