@@ -12,5 +12,8 @@ Environment for running [youtube-dl](https://github.com/rg3/youtube-dl) in docke
 Download a video:
 
 ```bash
-$ docker run -it --rm -v /tmp:/tmp jbergknoff/youtube-dl -o /tmp/video.mp4 https://www.youtube.com/watch?v=ZWuNf4gxwuM
+$ docker run -it --rm -v "$(pwd):/src" jbergknoff/youtube-dl \
+    -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]' \
+    -o /src/video.mp4 \
+    https://www.youtube.com/watch?v=ZWuNf4gxwuM
 ```
