@@ -2,7 +2,7 @@
 
 node.js environment, with git and build tools, to facilitate npm and bower installs.
 
-* built on top of `gliderlabs/alpine` base image
+* built on top of `mhart/alpine-node` image
 
 ### Example usage:
 

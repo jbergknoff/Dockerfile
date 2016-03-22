@@ -1,5 +1,7 @@
 ## node.js
 
+**DEPRECATED**: use https://github.com/mhart/alpine-node instead.
+
 Minimal node.js environment:
 
 * built on top of `gliderlabs/alpine` base image
