@@ -1,21 +1,49 @@
 # Project64
 
+This lets you run Project64 in Wine in a container on Linux.
+
 ## Example usage
 
-Here's how I use this on a computer with
+First, I make directories `mkdir -p ~/.config/project64/{config,save}`.
+
+Then, on a computer with a NVIDIA graphics card and the NVIDIA drivers (version 440, if that matters) installed on the host system.
+
+```sh
+alias project64='docker run -it --rm \
+	-v $XDG_RUNTIME_DIR/pulse/native:/run/user/1000/pulse/native -e PULSE_SERVER=unix:/run/user/1000/pulse/native \
+	--privileged -v /usr/lib/i386-linux-gnu:/nvidia-drivers -e LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:/nvidia-drivers
+	-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
+	-v ~/Games/N64:/home/wine/.wine/drive_c/N64 \
+	-v ~/.config/project64/config:/home/wine/.wine/drive_c/Project64/Config \
+	-v ~/.config/project64/save:/home/wine/.wine/drive_c/Project64/Save \
+	--device /dev/input/js0 \
+	jbergknoff/project64'
+```
+
+The image is, unfortunately, built with the specific user id 1000, and there are issues with PulseAudio socket access if the container uid doesn't match the host uid (i.e. the host user must also be 1000). There's probably some way to make this less brittle, but I don't know what that is, and it's good enough for me for the moment.
+
+On a computer with no NVIDIA graphics card, slightly simpler:
+
+```sh
+alias project64='docker run -it --rm \
+	-v $XDG_RUNTIME_DIR/pulse/native:/run/user/1000/pulse/native -e PULSE_SERVER=unix:/run/user/1000/pulse/native \
+	-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
+	-v ~/Games/N64:/home/wine/.wine/drive_c/N64 \
+	-v ~/.config/project64/config:/home/wine/.wine/drive_c/Project64/Config \
+	-v ~/.config/project64/save:/home/wine/.wine/drive_c/Project64/Save \
+	--device /dev/input/js0 \
+	jbergknoff/project64'
+```
+
+Comments on the various flags below.
 
 ### Volumes
 
-Volume in some locations to persist the data across runs (of course, if the installation goes south, run without those volumes, or wipe them out, to get back to a clean slate).
+Inside the container, as far as Wine and Project64 are concerned, `/home/wine/.wine/drive_c` is accessible under `C:` while `/` is accessible under `Z:`.
 
-I make directories `mkdir -p ~/.config/project64/{config,save}` and then
+The `Config` and `Save` volumes are useful to persist that data across runs (of course, if the installation goes south, run without those volumes, or wipe them out, to get back to a clean slate).
 
-```
--v ~/.config/project64/config:/home/wine/.wine/drive_c/Program\ Files/Project64\ 2.3/Config \
--v ~/.config/project64/save:/home/wine/.wine/drive_c/Program\ Files/Project64\ 2.3/Save
-```
-
-Volume in your games, wherever they are.
+And you'll want to volume in your games, wherever they are, to wherever you want.
 
 ### X11 forwarding
 
@@ -45,33 +73,17 @@ With PulseAudio installed on the host system (including the 32-bit versions), pa
 -e PULSE_SERVER=unix:/run/user/1000/pulse/native -v $XDG_RUNTIME_DIR/pulse/native:/run/user/1000/pulse/native
 ```
 
-This works for me on one of my computers (Linux Mint 19.3 host), but actually not on another of my computers (also Mint 19.3), and I don't know why. Running a game in Project64 fails with
+The 1000 here is specific to the user in the container (set in the Dockerfile). Unfortunately, this is pretty brittle. The file on the host system (`$XDG_RUNTIME_DIR/pulse/native`) also must be owned by uid 1000, or there are access control issues.
+
+I had a lot of trouble getting audio to work when building the image from a Dockerfile (as opposed to running the steps manually in a container). The symptoms were that Wine would show no audio driver (`winecfg` would report `Selected Driver: (None)`) and Wine would always print this error when trying to do anything audio-related:
 
 ```
-$ wine Project64.exe
-0010:err:ole:marshal_object couldn't get IPSFactory buffer for interface {00000131-0000-0000-c000-000000000046}
-0010:err:ole:marshal_object couldn't get IPSFactory buffer for interface {6d5140c1-7436-11ce-8034-00aa006009fa}
-0010:err:ole:StdMarshalImpl_MarshalInterface Failed to create ifstub, hres=0x80004002
-0010:err:ole:CoMarshalInterface Failed to marshal the interface {6d5140c1-7436-11ce-8034-00aa006009fa}, 80004002
-0010:err:ole:get_local_server_stream Failed: 80004002
-0012:fixme:ver:GetCurrentPackageId (0xeefefc (nil)): stub
-0009:fixme:resource:DestroyAcceleratorTable other process handle 0x1?
-0009:fixme:sync:NtSetTimerResolution (10000,1,0x32cb44), stub!
-0009:fixme:dinput:IDirectInputDevice2AImpl_EnumEffects 0xc7e588)->(0xa62680,0xa9f110,0x00000000): stub!
-libGL error: MESA-LOADER: failed to retrieve device information
-libGL error: Version 4 or later of flush extension not found
-libGL error: failed to load driver: i915
-libGL error: failed to open drm device: No such file or directory
-libGL error: failed to load driver: i965
-packed pixels extension used
-NPOT extension used
-use_fbo 0
 0016:err:ole:CoGetClassObject class {bcde0395-e52f-467c-8e3d-c4579291692e} not registered
 0016:err:ole:CoGetClassObject no class object {bcde0395-e52f-467c-8e3d-c4579291692e} could be created for context 0x1
 0016:err:dsound:get_mmdevenum CoCreateInstance failed: 80040154
 ```
 
-Wine isn't picking out an audio driver (as seen in `winecfg`, which reports "Selected Driver: (None)") and can't be persuaded otherwise.
+There are several discussions about this on the internet, but none of them were relevant to what I was seeing. Ultimately I determined that Wine's `system.reg` was corrupt (or, at least, mostly empty when it shouldn't have been), and this was because running `wineboot` in a Dockerfile wasn't letting Wine's magical background processes do their work (because `wineboot` returns before the work is done, and Docker immediately, rightfully, terminates the container). I noticed the symptom, and the understanding came from [this GH issue](https://github.com/moby/moby/issues/12795) and [this GH issue](https://github.com/suchja/wine/issues/7). I worked around this by adding a `&& sleep 10` to the `wineboot` command in the Dockerfile. I hope other people trying to containerize specific Wine applications stumble upon this description and find it useful.
 
 ### Game controller
 
