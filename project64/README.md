@@ -11,7 +11,7 @@ Then, on a computer with a NVIDIA graphics card and the NVIDIA drivers (version 
 ```sh
 alias project64='docker run -it --rm \
 	-v $XDG_RUNTIME_DIR/pulse/native:/run/user/1000/pulse/native -e PULSE_SERVER=unix:/run/user/1000/pulse/native \
-	--privileged -v /usr/lib/i386-linux-gnu:/nvidia-drivers -e LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:/nvidia-drivers
+	--privileged -v /usr/lib/i386-linux-gnu:/nvidia-drivers -e LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:/nvidia-drivers \
 	-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY \
 	-v ~/Games/N64:/home/wine/.wine/drive_c/N64 \
 	-v ~/.config/project64/config:/home/wine/.wine/drive_c/Project64/Config \
