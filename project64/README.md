@@ -1,6 +1,6 @@
 # Project64
 
-This lets you run Project64 in Wine in a container on Linux. Discussed in more depth at https://hub.docker.com/repository/docker/jbergknoff/project64.
+This lets you run Project64 in Wine in a container on Linux. Available from Docker Hub: https://hub.docker.com/r/jbergknoff/project64. Discussed in more depth: https://jonathan.bergknoff.com/journal/running-project64-in-docker/.
 
 ## Example usage
 
