@@ -17,10 +17,12 @@ alias project64='docker run -it --rm \
 	-v ~/.config/project64/config:/home/wine/.wine/drive_c/Project64/Config \
 	-v ~/.config/project64/save:/home/wine/.wine/drive_c/Project64/Save \
 	--device /dev/input/js0 \
-	jbergknoff/project64'
+	jbergknoff/project64:<tag>'
 ```
 
 The image is, unfortunately, built with the specific user id 1000, and there are issues with PulseAudio socket access if the container uid doesn't match the host uid (i.e. the host user must also be 1000). There's probably some way to make this less brittle, but I don't know what that is, and it's good enough for me for the moment.
+
+You'll need to specify the tag at the very end of the command. [List of available tags](https://hub.docker.com/r/jbergknoff/project64/tags).
 
 On a computer with no NVIDIA graphics card, slightly simpler:
 
@@ -32,7 +34,7 @@ alias project64='docker run -it --rm \
 	-v ~/.config/project64/config:/home/wine/.wine/drive_c/Project64/Config \
 	-v ~/.config/project64/save:/home/wine/.wine/drive_c/Project64/Save \
 	--device /dev/input/js0 \
-	jbergknoff/project64'
+	jbergknoff/project64:<tag>'
 ```
 
 Comments on the various flags below.
@@ -86,6 +88,8 @@ I had a lot of trouble getting audio to work when building the image from a Dock
 There are several discussions about this on the internet, but none of them were relevant to what I was seeing. Ultimately I determined that Wine's `system.reg` was corrupt (or, at least, mostly empty when it shouldn't have been), and this was because running `wineboot` in a Dockerfile wasn't letting Wine's magical background processes do their work (because `wineboot` returns before the work is done, and Docker immediately, rightfully, terminates the container). I noticed the symptom, and the understanding came from [this GH issue](https://github.com/moby/moby/issues/12795) and [this GH issue](https://github.com/suchja/wine/issues/7). I worked around this by adding a `&& sleep 10` to the `wineboot` command in the Dockerfile. I hope other people trying to containerize specific Wine applications stumble upon this description and find it useful.
 
 ### Game controller
+
+If you have a controller plugged in, and the system sees it as `/dev/input/js0` (for example), you'll want to pass permissions on it through to the container like this:
 
 ```
 --device /dev/input/js0
