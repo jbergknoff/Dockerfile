@@ -13,7 +13,7 @@ $ docker run -it --rm jbergknoff/postgresql-client postgresql://user:pass@host:5
 ```
 To override `psql` and call pg_dump instead:
 ```bash
-$ docker run -v /path/for/backup:/var/pgdata -it --rm --entrypoint pg_dump \   
+$ docker run -v /path/for/backup:/var/pg_data -it --rm --entrypoint pg_dump \   
 jbergknoff/postgresql-client -h host -U user -f /var/pg_data/mydump.sql db
 ...
 ```
